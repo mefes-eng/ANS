@@ -1,4 +1,20 @@
 import scapy.all as scapy
+import socket
+
+
+def grab_banner(ip,port):
+    try:
+        s=socket.socket()
+        s.settimeout(2)
+        s.connect((ip,port))
+
+        banner = s.recv(1024).decode().strip()
+        s.close
+        return banner
+    
+    except :
+        return None
+
 
 def get_os(ttl):
     if ttl <= 64:
@@ -59,7 +75,15 @@ def port_scan(target_list):
             
             if received_packet.haslayer(scapy.TCP) and received_packet[scapy.TCP].flags == "SA":
                 port = received_packet[scapy.TCP].sport
-                print(f" Port {port}: OPEN!")
+                banner =grab_banner(ip_address, port)
+
+                if banner:
+                    print(f" Port {port}: OPEN! --> Service {banner}")
+
+                else:
+                    print(f" Port {port}: OPEN!")
+                    
+                
 
     
 live_hosts = net_scan("192.168.1.1/24")
